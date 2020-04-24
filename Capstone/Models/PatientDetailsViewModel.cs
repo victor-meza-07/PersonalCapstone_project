@@ -16,7 +16,7 @@ namespace Capstone.Models
         public string PatientAge { get; set; }
         public string PatientRace { get; set; }
         public string PatientGender { get; set; }
-        public List<Dictionary<string,double>> PatientCCList { get; set; }
+        public Dictionary<string, Dictionary<string,double> > PatientCCList { get; set; }
         public List<string> PatientPossibleIllness { get; set; }
         public Dictionary<string, double> PatientMortalityProbability { get; set; }
 

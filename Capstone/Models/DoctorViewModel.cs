@@ -18,5 +18,6 @@ namespace Capstone.Models
         public string PatientSymptomOne { get; set; }
         public string PatientSymptomTwo { get; set; }
         public string PatientSymptomThree { get; set; }
+        public List<PatientDetailsViewModel> PatientDetails { get; set; }
     }
 }

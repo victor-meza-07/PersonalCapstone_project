@@ -1,4 +1,7 @@
 ﻿using Capstone.Models;
+using Meta.Numerics.Statistics;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Emit;
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
@@ -15,14 +18,108 @@ namespace Capstone.Services
             
             return dataset;
         }
-        public Dictionary<string, double> GetCC(List<CDCDataModel> data) 
+        public Dictionary<string, double> GetCC(List<CDCDataModel> data, DoctorViewModel doctorCurrentPatient) 
         {
             Dictionary<string, double> correlationCoeficients = new Dictionary<string, double>();
+            List<string> conditions = new List<string>();
+
+            //calculate the mean of the times this particular pre existing condition shows up in the data.
+            //when it's related to the age group and descease of the current patient.
+
+            string conditionOne = doctorCurrentPatient.PatientConditionOne;
+            string conditionTwo = doctorCurrentPatient.PatientConditionTwo;
+            string conditionThree = doctorCurrentPatient.PatientConditionThree;
+
+            conditions.Add(conditionOne);
+            conditions.Add(conditionTwo);
+            conditions.Add(conditionThree);
+
+            foreach (string condition in conditions) 
+            {
+                //all deaths associated with this condition will be list one
+                //all deaths associated with this condition and demographic specs will be list 2.
+
+                var listAllDeathsWithCondition = data.Where(d => d.Conditions.Contains(condition)).Select(d=>double.Parse(d.Deaths)).ToList();
+                var listAllSpecificDeaths = data.Where(d => d.Conditions.Contains(condition) &&
+                                                            double.Parse(d.AgeRange.Substring(0, 2)) < double.Parse(doctorCurrentPatient.PatientAge) &&
+                                                            double.Parse(d.AgeRange.Substring(3, 2)) > double.Parse(doctorCurrentPatient.PatientAge) &&
+                                                            d.Gender == doctorCurrentPatient.PatientGender &&
+                                                            d.Race == doctorCurrentPatient.PatientRace).Select(d => double.Parse(d.Deaths)).ToList();
+
+
+                
+                Double[] specificDeathsArr = listAllSpecificDeaths.ToArray();
+                while (listAllDeathsWithCondition.Count != listAllSpecificDeaths.Count) 
+                {
+                    listAllDeathsWithCondition.Remove(listAllDeathsWithCondition[listAllDeathsWithCondition.Count - 1]);
+                }
+                Double[] allDeathsArr = listAllDeathsWithCondition.ToArray();
+
+                var corr = Correlation(specificDeathsArr, allDeathsArr);
+
+                correlationCoeficients.Add(condition, corr);
+            }
+
             
             
-            
-            
+
             return correlationCoeficients;
+        }
+
+        public double GetMortalityProbability(DoctorViewModel currentPatient, List<CDCDataModel> data) 
+        {
+            double pValue = 0.0;
+            //calculate all the deaths of this patients age range for the symptoms they have
+           
+            int patientAge = Int32.Parse(currentPatient.PatientAge);
+            var cause = data.Where(d => (d.Symptoms[0] == currentPatient.PatientSymptomOne) &&
+                                            (d.Symptoms[1] == currentPatient.PatientSymptomTwo) &&
+                                            (d.Symptoms[2] == currentPatient.PatientSymptomThree)).Select(d => d.Cause).FirstOrDefault();
+            if (patientAge >= 85)
+            {
+                var deathList = data.Where(d => Int32.Parse(d.AgeRange.Substring(0, 2)) <= patientAge &&
+                                                            currentPatient.PatientGender == d.Gender &&
+                                                            currentPatient.PatientRace == d.Race &&
+                                                            cause == d.Cause).Select(d => Int32.Parse(d.Deaths));
+                var populationList = data.Where(d => Int32.Parse(d.AgeRange.Substring(0, 2)) <= patientAge &&
+                                                            currentPatient.PatientGender == d.Gender &&
+                                                            currentPatient.PatientRace == d.Race &&
+                                                            cause == d.Cause).Select(d => Int32.Parse(d.Population));
+
+                var sumsOfDeaths = deathList.Sum();
+                var sumOfPopulation = populationList.Sum();
+
+
+                pValue = (sumsOfDeaths / sumOfPopulation);
+
+            }
+            else 
+            {
+                string deaths = "";
+                string pops = "";
+                //linq for anyone else.
+                var deathLists = data.Where(d => (Int32.Parse(d.AgeRange.Substring(0, 2)) <= patientAge) && 
+                                                 (Int32.Parse(d.AgeRange.Substring(3, 2)) >= patientAge) &&
+                                                 (currentPatient.PatientGender == d.Gender) &&
+                                                 (currentPatient.PatientRace == d.Race) &&
+                                                 (cause == d.Cause)).Select(d => Int32.Parse(( deaths = d.Deaths.Replace(",",""))));
+
+                var populationList = data.Where(d => (Int32.Parse(d.AgeRange.Substring(0, 2)) <= patientAge) &&
+                                                 (Int32.Parse(d.AgeRange.Substring(3, 2)) >= patientAge) &&
+                                                 (currentPatient.PatientGender == d.Gender) &&
+                                                 (currentPatient.PatientRace == d.Race) &&
+                                                 (cause == d.Cause)).Select(d => Int32.Parse((pops = d.Population.Replace(",", ""))));
+
+                var sumsOfDeaths = deathLists.Sum();
+                var sumOfPopulation = populationList.Sum();
+
+
+                pValue = (sumsOfDeaths / sumOfPopulation);
+            }
+            //we can use linq
+            
+
+            return pValue;
         }
         
         
@@ -108,6 +205,45 @@ namespace Capstone.Services
 
             return models;
         }
+        private double Correlation(IEnumerable<Double> xs, IEnumerable<Double> ys)
+        {
+            // sums of x, y, x squared etc.
+            double sx = 0.0;
+            double sy = 0.0;
+            double sxx = 0.0;
+            double syy = 0.0;
+            double sxy = 0.0;
 
+            int n = 0;
+
+            using (var enX = xs.GetEnumerator())
+            {
+                using (var enY = ys.GetEnumerator())
+                {
+                    while (enX.MoveNext() && enY.MoveNext())
+                    {
+                        double x = enX.Current;
+                        double y = enY.Current;
+
+                        n += 1;
+                        sx += x;
+                        sy += y;
+                        sxx += x * x;
+                        syy += y * y;
+                        sxy += x * y;
+                    }
+                }
+            }
+
+            // covariation
+            double cov = sxy / n - sx * sy / n / n;
+            // standard error of x
+            double sigmaX = Math.Sqrt(sxx / n - sx * sx / n / n);
+            // standard error of y
+            double sigmaY = Math.Sqrt(syy / n - sy * sy / n / n);
+
+            // correlation is just a normalized covariation
+            return cov / sigmaX / sigmaY;
+        }
     }
 }

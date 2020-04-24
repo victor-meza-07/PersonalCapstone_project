@@ -10,9 +10,11 @@ namespace Capstone.Services
     public class DoctorServices
     {
         ApplicationDbContext _context;
+        GetData _GetData;
         public DoctorServices(ApplicationDbContext context)
         {
             _context = context;
+            _GetData = new GetData();
         }
 
         public void RegisterNewDoctor(DoctorRegisterViewModel RegisteringDoctor) 
@@ -99,6 +101,41 @@ namespace Capstone.Services
             _context.DemographicClassification.Add(demos);
 
             _context.SaveChanges();
+        }
+
+        public List<PatientDetailsViewModel> GetDefaultPatients(string docId, List<CDCDataModel> data) 
+        {
+            List<PatientDetailsViewModel> patients = new List<PatientDetailsViewModel>();
+
+            PatientDetailsViewModel patientOne = new PatientDetailsViewModel { DoctorId = docId, PatientAge = "45", PatientGender = "Male", PatientRace = "White"};
+            DoctorViewModel docModel = new DoctorViewModel { PatientConditionOne = "Obesity", PatientConditionTwo = "Asthma", PatientConditionThree = "Asbestosis",
+                                                             PatientAge = patientOne.PatientAge, PatientRace = patientOne.PatientRace, PatientGender = patientOne.PatientGender,
+                                                             PatientSymptomOne = "Chest Pain", PatientSymptomTwo = "Cough", PatientSymptomThree = "null"};
+
+            var cause = data.Where(d => (d.Symptoms[0] == docModel.PatientSymptomOne) &&
+                                        (d.Symptoms[1] == docModel.PatientSymptomTwo) &&
+                                        (d.Symptoms[2] == docModel.PatientSymptomThree)).Select(d => d.Cause).FirstOrDefault();
+
+            Dictionary<string, double> probability = new Dictionary<string, double>();
+            Dictionary<string, double> CCList = _GetData.GetCC(data, docModel);
+            Dictionary<string, Dictionary<string, double>> IllCCList = new Dictionary<string, Dictionary<string, double>>();
+
+            double pVal = _GetData.GetMortalityProbability(docModel, data);
+            List<string> possibleIllnesses = new List<string>();
+            
+            
+            possibleIllnesses.Add(cause);
+
+            probability.Add(cause, pVal);
+            IllCCList.Add(cause, CCList);
+
+            patientOne.PatientMortalityProbability = probability;
+            patientOne.PatientPossibleIllness = possibleIllnesses;
+            patientOne.PatientCCList = IllCCList;
+            
+            patients.Add(patientOne);
+
+            return patients;
         }
     }
 }

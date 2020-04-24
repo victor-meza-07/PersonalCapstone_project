@@ -14,26 +14,31 @@ namespace Capstone.Controllers
     {
         ApplicationDbContext _context;
         DoctorServices _doctorServices;
+        GetData _GetData;
         public DoctorController(ApplicationDbContext context)
         {
             _context = context;
             _doctorServices = new DoctorServices(_context);
+            _GetData = new GetData();
         }
         public IActionResult Index()
         {
             var userId = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (_doctorServices.CheckCurrentDoctorRegisterComplete(userId) == false)
             {
-                //TODO: MAKE A DOCTOR VIEW ITEM.
                 return Register(userId);
             }
             else 
             {
+                List<CDCDataModel> data = _GetData.GetCDCData();
                 DoctorViewModel doctor = new DoctorViewModel();
+                PatientDetailsViewModel patient = new PatientDetailsViewModel();
                 var buildingPk = _context.Doctors.Where(d => d.UserId == userId).Select(d => d.DoctorHospitalBuildingKey).FirstOrDefault();
 
                 doctor.DoctorBuildingPK = buildingPk;
                 doctor.DoctorId = userId;
+                doctor.PatientDetails = _doctorServices.GetDefaultPatients(userId,data);
+
                 return View(doctor);
             }
         }
@@ -75,6 +80,8 @@ namespace Capstone.Controllers
             else 
             {
                 _doctorServices.RegisterPatientProfile(doctor);
+                List<CDCDataModel> cdcData =  _GetData.GetCDCData();
+
                 //once we have registered them, we send them the data we need haha!
 
             }
