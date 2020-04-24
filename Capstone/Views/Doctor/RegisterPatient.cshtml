@@ -4,40 +4,59 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1 class="custom-text-light">Register Patient</h1>
+<div class="row">
+    <h1 class="custom-text-light">Register A Patient</h1>
+</div>
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="RegisterDoctor">
+        <form asp-action="RegisterPatient">
+            @Html.Hidden("DoctorId")
+            @Html.Hidden("DoctorBuildingPK")
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" />
-                <span asp-validation-for="UserId" class="text-danger"></span>
+                <label asp-for="PatientAge" class="control-label custom-text-light"></label>
+                <input asp-for="PatientAge" class="form-control" />
+                <span asp-validation-for="PatientAge" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="BuildingNumber" class="control-label"></label>
-                <input asp-for="BuildingNumber" class="form-control" />
-                <span asp-validation-for="BuildingNumber" class="text-danger"></span>
+                <label asp-for="PatientGender" class="control-label custom-text-light"></label>
+                <input asp-for="PatientGender" class="form-control" />
+                <span asp-validation-for="PatientGender" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="StreetName" class="control-label"></label>
-                <input asp-for="StreetName" class="form-control" />
-                <span asp-validation-for="StreetName" class="text-danger"></span>
+                <label asp-for="PatientRace" class="control-label custom-text-light"></label>
+                <input asp-for="PatientRace" class="form-control" />
+                <span asp-validation-for="PatientRace" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="City" class="control-label"></label>
-                <input asp-for="City" class="form-control" />
-                <span asp-validation-for="City" class="text-danger"></span>
+                <label asp-for="PatientConditionOne" class="control-label custom-text-light"></label>
+                <input asp-for="PatientConditionOne" class="form-control" />
+                <span asp-validation-for="PatientConditionOne" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="State" class="control-label"></label>
-                <input asp-for="State" class="form-control" />
-                <span asp-validation-for="State" class="text-danger"></span>
+                <label asp-for="PatientConditionTwo" class="control-label custom-text-light"></label>
+                <input asp-for="PatientConditionTwo" class="form-control" />
+                <span asp-validation-for="PatientConditionTwo" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ZipCode" class="control-label"></label>
-                <input asp-for="ZipCode" class="form-control" />
-                <span asp-validation-for="ZipCode" class="text-danger"></span>
+                <label asp-for="PatientConditionThree" class="control-label custom-text-light"></label>
+                <input asp-for="PatientConditionThree" class="form-control" />
+                <span asp-validation-for="PatientConditionThree" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PatientSymptomOne" class="control-label custom-text-light"></label>
+                <input asp-for="PatientSymptomOne" class="form-control" />
+                <span asp-validation-for="PatientSymptomOne" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PatientSymptomTwo" class="control-label custom-text-light"></label>
+                <input asp-for="PatientSymptomTwo" class="form-control" />
+                <span asp-validation-for="PatientSymptomTwo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PatientSymptomThree" class="control-label custom-text-light"></label>
+                <input asp-for="PatientSymptomThree" class="form-control" />
+                <span asp-validation-for="PatientSymptomThree" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

@@ -56,5 +56,49 @@ namespace Capstone.Services
             }
             return registered;
         }
+
+        public bool CheckIfPatientProfileExists(DoctorViewModel doctorView) 
+        {
+            bool exists = false;
+
+            var symptomsMixMatching = _context.SymptomsMix.Where(s => s.SymptomOne == doctorView.PatientSymptomOne &&
+                                                                s.SymptomTwo == doctorView.PatientSymptomTwo &&
+                                                                s.SyptomThree == doctorView.PatientSymptomThree);
+
+            var DemographicMixMatching = _context.DemographicClassification.Where(d => d.Age == Int32.Parse(doctorView.PatientAge) &&
+                                                                                       d.Gender == doctorView.PatientGender&&
+                                                                                       d.Race == doctorView.PatientRace);
+            if ((symptomsMixMatching != null)&&(DemographicMixMatching != null)) 
+            {
+                exists = true;
+            }
+
+            return exists;
+        }
+
+        public void RegisterPatientProfile(DoctorViewModel doctor) 
+        {
+            DemographicClassifications demos = new DemographicClassifications();
+            PreExistingConditions conditions = new PreExistingConditions();
+            Symptoms symptoms = new Symptoms();
+
+            demos.Age = Int32.Parse(doctor.PatientAge);
+            demos.Gender = doctor.PatientGender;
+            demos.Race = doctor.PatientRace;
+
+            conditions.ConditionOne = doctor.PatientConditionOne;
+            conditions.ConditionTwo = doctor.PatientConditionTwo;
+            conditions.ConsitionThree = doctor.PatientConditionThree;
+
+            symptoms.SymptomOne = doctor.PatientSymptomOne;
+            symptoms.SymptomTwo = doctor.PatientSymptomTwo;
+            symptoms.SyptomThree = doctor.PatientSymptomThree;
+
+            _context.SymptomsMix.Add(symptoms);
+            _context.ConditionsMix.Add(conditions);
+            _context.DemographicClassification.Add(demos);
+
+            _context.SaveChanges();
+        }
     }
 }

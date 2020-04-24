@@ -65,6 +65,19 @@ namespace Capstone.Controllers
         public IActionResult RegisterPatient(DoctorViewModel doctor) 
         {
             //this is where we begin registering the patients symptoms
+            bool profileExists = _doctorServices.CheckIfPatientProfileExists(doctor);
+            if (profileExists == true) 
+            {
+                //Send to a view that display's this patients Probability of death, that includes the CC of their pre existing symptom
+
+                /* GET THE DATA RELEVANT TO US*/ 
+            }
+            else 
+            {
+                _doctorServices.RegisterPatientProfile(doctor);
+                //once we have registered them, we send them the data we need haha!
+
+            }
             return RedirectToAction("Index", "Doctor");
         }
     }
