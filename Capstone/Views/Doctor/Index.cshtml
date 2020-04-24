@@ -1,0 +1,12 @@
+﻿@model Capstone.Models.DoctorViewModel
+
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="custom-text-light">Hello Registered Doctor!</h1>
+<!--THIS IS WHERE I SHOULD ADD THE TABLE WE GOT FROM THE SERVICE-->
+<button name="nameButton" id="buttonId" title="Add a new Patient" class="btn btn-primary" type="button" onclick="location.href='@Url.Action("AddAnewPatient","Doctor",Model)'">Add a new Patient</button>
+

@@ -15,6 +15,8 @@ namespace Capstone.Data
         public DbSet<DemographicClassifications> DemographicClassification { get; set; }
         public DbSet<ParameterMLModelJunction> ParameterMLModelJustions { get; set; }
         public DbSet<ParametersJunctionModel> PatientProfile { get; set; }
+        public DbSet<DoctorModel> Doctors { get; set; }
+        public DbSet<AddressModel> Addresses { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
