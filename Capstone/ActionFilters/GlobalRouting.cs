@@ -33,7 +33,7 @@ namespace Capstone.ActionFilters
                 }
                 else if (_claimsPrincipal.IsInRole("Analyst"))
                 {
-                    context.Result = new RedirectToActionResult("Index", "Home", null);
+                    context.Result = new RedirectToActionResult("Index", "Analyst", null);
                 }
             }
         }

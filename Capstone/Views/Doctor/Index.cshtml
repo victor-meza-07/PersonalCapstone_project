@@ -8,7 +8,16 @@
 
 <h1 class="custom-text-light">Hello Registered Doctor!</h1>
 <!--THIS IS WHERE I SHOULD ADD THE TABLE WE GOT FROM THE SERVICE-->
-<table>
+<table class="table table-dark">
+    <thead>
+        <tr>
+            <th>Gender</th>
+            <th>Race</th>
+            <th>Age</th>
+            <th>Possible Illness</th>
+            <th>Mortality Probability</th>
+        </tr>
+    </thead>
     <tbody>
        @foreach (var item in Model.PatientDetails) 
        {
@@ -17,7 +26,8 @@
                <td>@item.PatientRace</td>
                <td>@item.PatientAge</td>
                <td>@item.PatientPossibleIllness[0]</td>
-               <td><button>GetPatientCCValues</button></td>
+               <td>@item.PatientMortalityProbability[item.PatientPossibleIllness[0]]</td>
+               <td><button class="btn btn-info">GetPatientCCValues</button></td>
            </tr>
        }
     </tbody>

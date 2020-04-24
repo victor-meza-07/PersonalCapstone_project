@@ -17,6 +17,7 @@ namespace Capstone.Data
         public DbSet<ParametersJunctionModel> PatientProfile { get; set; }
         public DbSet<DoctorModel> Doctors { get; set; }
         public DbSet<AddressModel> Addresses { get; set; }
+        public DbSet<PopulationLocationModel> PopulationLocation { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

@@ -78,3 +78,9 @@ body {
 .custom-text-light {
     color:rgb(219, 215, 194);
 }
+
+#map {
+    width: 100%;
+    height: 400px;
+    background-color: grey;
+}
